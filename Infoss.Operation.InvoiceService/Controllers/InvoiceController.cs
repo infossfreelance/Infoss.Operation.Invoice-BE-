@@ -22,6 +22,35 @@ namespace Infoss.Operation.InvoiceService.Controllers
             invoiceRepository = new InvoiceRepository(Configuration);
         }
 
+        [Route("PostByPageAll")]
+        [HttpPost]
+        public async Task<ResponsePage<InvoiceResponsePage>> GetPost(int pageNumber, int pageSize, [FromBody] UserLogin userLogin)
+        {
+            var route = Request.Path.Value;
+
+            var requestPage = new RequestPage();
+            requestPage.RowStatus = "ACT";
+            requestPage.UserLogin = userLogin;
+            requestPage.PageNumber = pageNumber;
+            requestPage.PageSize = pageSize;
+
+            var responsePage = await invoiceRepository.ReadAll(requestPage);
+            return responsePage;
+
+        }
+        [Route("UpdateStatusPrint")]
+        [HttpPut]
+        public async Task<ResponsePage<InvoiceResponse>> PutStatusPrint([FromBody] InvoicePrintingRequest invoicePrintRequest)
+        {
+            return await invoiceRepository.UpdateStatusPrint(invoicePrintRequest);
+        }
+
+        [Route("UpdateStatusRePrint")]
+        [HttpPut]
+        public async Task<ResponsePage<InvoiceResponse>> PutStatusRePrint([FromBody] InvoiceRePrintingRequest invoiceRePrintRequest)
+        {
+            return await invoiceRepository.UpdateStatusRePrint(invoiceRePrintRequest);
+        }
 
         [Route("PostByPage")]
         [HttpPost]

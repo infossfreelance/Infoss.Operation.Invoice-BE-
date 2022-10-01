@@ -13,6 +13,158 @@ namespace Infoss.Operation.InvoiceService.Repositories
             connectionString = configuration.GetConnectionString("SqlConnection");
         }
 
+        public async Task<ResponsePage<InvoiceResponsePage>> ReadAll(RequestPage requestPage)
+        {
+            var responsePage = new ResponsePage<InvoiceResponsePage>();
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("@RowStatus", requestPage.RowStatus);
+                parameters.Add("@CountryId", requestPage.UserLogin.CountryId);
+                parameters.Add("@CompanyId", requestPage.UserLogin.CompanyId);
+                parameters.Add("@BranchId", requestPage.UserLogin.BranchId);
+                parameters.Add("@User", requestPage.UserLogin.UserCode);
+                parameters.Add("@Id", 0);
+                parameters.Add("@PageNo", requestPage.PageNumber);
+                parameters.Add("@PageSize", requestPage.PageSize);
+                parameters.Add("@RowCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                parameters.Add("@PageCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    using (var multi = (await connection.QueryMultipleAsync("operation.SP_Invoice_Read_All_Data", parameters, commandType: CommandType.StoredProcedure)))
+                    {
+                        InvoiceResponsePage invoiceResponsePage = new InvoiceResponsePage();
+
+                        //var invoiceColumns = (await multi.ReadAsync<InvoiceColumn>()).ToList();
+                        var invoiceResponses = (await multi.ReadAsync<InvoiceResponse>()).ToList();
+
+                        //invoiceResponsePage.Columns = invoiceColumns;
+                        invoiceResponsePage.Invoices = invoiceResponses;
+
+                        responsePage.Data = invoiceResponsePage;
+
+                        responsePage.TotalRowCount = parameters.Get<int>("@RowCount");
+                        responsePage.TotalPage = parameters.Get<int>("@PageCount");
+
+                        if (responsePage.Data != null)
+                        {
+                            responsePage.Code = 200;
+                            responsePage.Message = "Successfully read";
+                        }
+                        else
+                        {
+                            responsePage.Code = 204;
+                            responsePage.Message = "No content";
+                        }
+
+                        return responsePage;
+                    }
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+                responsePage.Code = 500;
+                responsePage.Error = ex.Message;
+                responsePage.Message = "Failed to read";
+
+                return responsePage;
+            }
+        }
+        
+        public async Task<ResponsePage<InvoiceResponse>> UpdateStatusPrint(InvoicePrintingRequest invoiceRequest)
+        {
+            var responsePage = new ResponsePage<InvoiceResponse>();
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("@RowStatus", invoiceRequest.RowStatus == "" ? "ACT" : invoiceRequest.RowStatus);
+                parameters.Add("@CountryId", invoiceRequest.CountryId);
+                parameters.Add("@CompanyId", invoiceRequest.CompanyId);
+                parameters.Add("@BranchId", invoiceRequest.BranchId);
+                parameters.Add("@Id", invoiceRequest.Id);
+                //parameters.Add("@TicketId", invoiceRequest.TicketId);
+                parameters.Add("@InvoiceNo", invoiceRequest.InvoiceNo);
+
+                parameters.Add("@Printing", invoiceRequest.Printing);
+                //parameters.Add("@PrintedOn", invoiceRequest.Invoice.PrintedOn);
+                
+                parameters.Add("@ModifiedBy", invoiceRequest.User);
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    //
+                    // PaymentRequest Header
+                    //
+                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_Printing_Status_Update", parameters, commandType: CommandType.StoredProcedure);
+
+
+                    responsePage.Code = 200;
+                    responsePage.Message = "Data Updated";
+
+                    return responsePage;
+                }
+            }
+            catch (Exception ex)
+            {
+                responsePage.Code = 500;
+                responsePage.Error = ex.Message;
+                responsePage.Message = "Faile to update";
+
+                return responsePage;
+            }
+        }
+        public async Task<ResponsePage<InvoiceResponse>> UpdateStatusRePrint(InvoiceRePrintingRequest invoiceRequest)
+        {
+            var responsePage = new ResponsePage<InvoiceResponse>();
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("@RowStatus", invoiceRequest.RowStatus == "" ? "ACT" : invoiceRequest.RowStatus);
+                parameters.Add("@CountryId", invoiceRequest.CountryId);
+                parameters.Add("@CompanyId", invoiceRequest.CompanyId);
+                parameters.Add("@BranchId", invoiceRequest.BranchId);
+                parameters.Add("@Id", invoiceRequest.Id);
+                //parameters.Add("@TicketId", invoiceRequest.TicketId);
+                parameters.Add("@InvoiceNo", invoiceRequest.InvoiceNo);
+
+                parameters.Add("@RePrintApproved", invoiceRequest.RePrintApproved);
+                parameters.Add("@RePrintApprovedBy", invoiceRequest.RePrintApprovedBy);
+
+                parameters.Add("@ModifiedBy", invoiceRequest.User);
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    //
+                    // PaymentRequest Header
+                    //
+                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_RePrinting_Status_Update", parameters, commandType: CommandType.StoredProcedure);
+
+
+                    responsePage.Code = 200;
+                    responsePage.Message = "Data Updated";
+
+                    return responsePage;
+                }
+            }
+            catch (Exception ex)
+            {
+                responsePage.Code = 500;
+                responsePage.Error = ex.Message;
+                responsePage.Message = "Faile to update";
+
+                return responsePage;
+            }
+        }
+
         public async Task<ResponsePage<InvoiceResponsePage>> Read(RequestPage requestPage)
         {
             var responsePage = new ResponsePage<InvoiceResponsePage>();
