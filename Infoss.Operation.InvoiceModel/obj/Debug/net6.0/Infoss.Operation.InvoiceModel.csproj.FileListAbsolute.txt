@@ -1,0 +1,24 @@
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\bin\Debug\net6.0\Infoss.Operation.InvoiceModel.deps.json
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\bin\Debug\net6.0\Infoss.Operation.InvoiceModel.dll
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\bin\Debug\net6.0\Infoss.Operation.InvoiceModel.pdb
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.csproj.AssemblyReference.cache
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.GeneratedMSBuildEditorConfig.editorconfig
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.AssemblyInfoInputs.cache
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.AssemblyInfo.cs
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.csproj.CoreCompileInputs.cache
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.dll
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\refint\Infoss.Operation.InvoiceModel.dll
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.pdb
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\ref\Infoss.Operation.InvoiceModel.dll
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\bin\Debug\net6.0\Infoss.Operation.InvoiceModel.deps.json
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\bin\Debug\net6.0\Infoss.Operation.InvoiceModel.dll
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\bin\Debug\net6.0\Infoss.Operation.InvoiceModel.pdb
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.csproj.AssemblyReference.cache
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.AssemblyInfoInputs.cache
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.AssemblyInfo.cs
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.csproj.CoreCompileInputs.cache
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.dll
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\refint\Infoss.Operation.InvoiceModel.dll
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\Infoss.Operation.InvoiceModel.pdb
+C:\Users\muham\Documents\Project\Freelance\Document\Invoice_Array\Infoss.Operation.InvoiceModel\obj\Debug\net6.0\ref\Infoss.Operation.InvoiceModel.dll

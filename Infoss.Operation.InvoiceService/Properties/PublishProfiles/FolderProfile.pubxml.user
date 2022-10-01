@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceService\bin\Release\net6.0\publish\</_PublishTargetUrl>
+    <History>True|2022-09-28T04:33:56.5648477Z;True|2022-09-28T11:23:21.1490311+07:00;True|2022-09-26T16:47:44.2153408+07:00;True|2022-09-26T12:54:26.2543778+07:00;True|2022-09-25T18:39:46.8852702+07:00;</History>
+  </PropertyGroup>
+</Project>

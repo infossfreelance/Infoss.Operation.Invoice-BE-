@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>a2da3b86-afbc-40f3-9866-f092b69552d6</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Infoss.Operation.InvoiceModel\Infoss.Operation.InvoiceModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Infoss.Master.MessageModel">
+      <HintPath>..\..\platform.infoss.master\Infoss.Master.MessageModel\bin\Release\net6.0\Infoss.Master.MessageModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Infoss.Reg.UserAccessModel">
+      <HintPath>..\..\platform.infoss.identity\Infoss.Reg.UserAccessModel\bin\Release\net6.0\Infoss.Reg.UserAccessModel.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

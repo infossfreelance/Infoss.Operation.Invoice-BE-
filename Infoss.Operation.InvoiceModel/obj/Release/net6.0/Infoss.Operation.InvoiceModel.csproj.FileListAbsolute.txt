@@ -1,0 +1,12 @@
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\bin\Release\net6.0\Infoss.Operation.InvoiceModel.deps.json
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\bin\Release\net6.0\Infoss.Operation.InvoiceModel.dll
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\bin\Release\net6.0\Infoss.Operation.InvoiceModel.pdb
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.csproj.AssemblyReference.cache
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.GeneratedMSBuildEditorConfig.editorconfig
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.AssemblyInfoInputs.cache
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.AssemblyInfo.cs
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.csproj.CoreCompileInputs.cache
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.dll
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\refint\Infoss.Operation.InvoiceModel.dll
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\Infoss.Operation.InvoiceModel.pdb
+D:\05. Infoss Platform Project Source at AWS\platform.infoss.operation\Infoss.Operation.InvoiceModel\obj\Release\net6.0\ref\Infoss.Operation.InvoiceModel.dll

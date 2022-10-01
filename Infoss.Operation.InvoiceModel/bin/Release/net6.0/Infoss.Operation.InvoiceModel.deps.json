@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Infoss.Operation.InvoiceModel/1.0.0": {
+        "runtime": {
+          "Infoss.Operation.InvoiceModel.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Infoss.Operation.InvoiceModel/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

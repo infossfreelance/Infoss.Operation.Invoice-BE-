@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "9yhWxly5tZi7ddGC37uSoo9CtbkihsG3O1k9E8THDuw=",
+  "Source": "Infoss.Operation.InvoiceService",
+  "BasePath": "_content/Infoss.Operation.InvoiceService",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
