@@ -11,7 +11,7 @@
         public int InvoiceNo { get; set; }
         public int RePrintApproved { get; set; }
         //public int RePrintApprovedOn { get; set; }
-        public int RePrintApprovedBy { get; set; }
+        public string RePrintApprovedBy { get; set; }
         public string User { get; set; } = string.Empty;
     }
 }
