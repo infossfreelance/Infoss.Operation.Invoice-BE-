@@ -165,6 +165,51 @@ namespace Infoss.Operation.InvoiceService.Repositories
             }
         }
 
+        public async Task<ResponsePage<InvoiceResponse>> UpdateStatusDelivered(InvoiceDeliveredRequest invoiceRequest)
+        {
+            var responsePage = new ResponsePage<InvoiceResponse>();
+
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("@RowStatus", invoiceRequest.RowStatus == "" ? "ACT" : invoiceRequest.RowStatus);
+                parameters.Add("@CountryId", invoiceRequest.CountryId);
+                parameters.Add("@CompanyId", invoiceRequest.CompanyId);
+                parameters.Add("@BranchId", invoiceRequest.BranchId);
+                parameters.Add("@Id", invoiceRequest.Id);
+                //parameters.Add("@TicketId", invoiceRequest.TicketId);
+                parameters.Add("@InvoiceNo", invoiceRequest.InvoiceNo);
+
+                parameters.Add("@IsDelivered", invoiceRequest.IsDelivered);
+                parameters.Add("@DeliveredRemarks", invoiceRequest.DeliveredRemarks);
+
+                parameters.Add("@ModifiedBy", invoiceRequest.User);
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    //
+                    // PaymentRequest Header
+                    //
+                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_RePrinting_Status_Update", parameters, commandType: CommandType.StoredProcedure);
+
+
+                    responsePage.Code = 200;
+                    responsePage.Message = "Data Updated";
+
+                    return responsePage;
+                }
+            }
+            catch (Exception ex)
+            {
+                responsePage.Code = 500;
+                responsePage.Error = ex.Message;
+                responsePage.Message = "Faile to update";
+
+                return responsePage;
+            }
+        }
+
         public async Task<ResponsePage<InvoiceResponsePage>> Read(RequestPage requestPage)
         {
             var responsePage = new ResponsePage<InvoiceResponsePage>();

@@ -51,6 +51,12 @@ namespace Infoss.Operation.InvoiceService.Controllers
         {
             return await invoiceRepository.UpdateStatusRePrint(invoiceRePrintRequest);
         }
+        [Route("UpdateStatusDelivered")]
+        [HttpPut]
+        public async Task<ResponsePage<InvoiceResponse>> PutStatusDelivered([FromBody] InvoiceDeliveredRequest invoiceDeliveredRequest)
+        {
+            return await invoiceRepository.UpdateStatusDelivered(invoiceDeliveredRequest);
+        }
 
         [Route("PostByPage")]
         [HttpPost]
