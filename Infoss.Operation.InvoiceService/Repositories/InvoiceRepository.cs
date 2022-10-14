@@ -182,6 +182,7 @@ namespace Infoss.Operation.InvoiceService.Repositories
                 parameters.Add("@InvoiceNo", invoiceRequest.InvoiceNo);
 
                 parameters.Add("@IsDelivered", invoiceRequest.IsDelivered);
+                parameters.Add("@DeliveredOn", invoiceRequest.DeliveredOn);
                 parameters.Add("@DeliveredRemarks", invoiceRequest.DeliveredRemarks);
 
                 parameters.Add("@ModifiedBy", invoiceRequest.User);
@@ -486,6 +487,55 @@ namespace Infoss.Operation.InvoiceService.Repositories
                         parameterDetails.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].User);
 
                         var affectedDetailRows = await connection.ExecuteAsync("operation.SP_InvoiceDetail_Create", parameterDetails, commandType: CommandType.StoredProcedure);
+
+                        if (invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count != 0)
+                        {
+                            for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count; j++)
+                            {
+                                var parameterDetailsProfitShares = new DynamicParameters();
+                                parameterDetailsProfitShares.Add("@CompanyId", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].CompanyId);
+                                //parameterDetailsProfitShares.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
+                                //parameterDetailsProfitShares.Add("@CreatedOn", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
+                                parameterDetailsProfitShares.Add("@InvoicesDetilId", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].InvoiceDetilId);
+                                parameterDetailsProfitShares.Add("@BFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
+                                parameterDetailsProfitShares.Add("@BFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet40);
+                                parameterDetailsProfitShares.Add("@BFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetHQ);
+                                parameterDetailsProfitShares.Add("@BFeetM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetM3);
+                                parameterDetailsProfitShares.Add("@SFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeet20);
+                                parameterDetailsProfitShares.Add("@SFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeet40);
+                                parameterDetailsProfitShares.Add("@SFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeetHQ);
+                                parameterDetailsProfitShares.Add("@SFeetM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeetM3);
+                                parameterDetailsProfitShares.Add("@BRate20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRate20);
+                                parameterDetailsProfitShares.Add("@BRate40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRate40);
+                                parameterDetailsProfitShares.Add("@BRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRateHQ);
+                                parameterDetailsProfitShares.Add("@BRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRateM3);
+                                parameterDetailsProfitShares.Add("@SRate20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRate20);
+                                parameterDetailsProfitShares.Add("@SRate40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRate40);
+                                parameterDetailsProfitShares.Add("@SRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateHQ);
+                                parameterDetailsProfitShares.Add("@SRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateM3);
+                                parameterDetailsProfitShares.Add("@Percentage", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].Percentage);
+                            }
+                        }
+
+                        if (invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count != 0)
+                        {
+                            for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count; j++)
+                            {
+                                var parameterDetailsStorages = new DynamicParameters();
+                                parameterDetailsStorages.Add("@CompanyId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].CompanyId);
+                                //parameterDetailsStorages.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].BFeet20);
+                                //parameterDetailsStorages.Add("@CreatedOn", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].BFeet20);
+                                parameterDetailsStorages.Add("@InvoicesDetilId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].InvoiceDetailId);
+                                parameterDetailsStorages.Add("@AmountIDR", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountIDR);
+                                parameterDetailsStorages.Add("@AmountUSD", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountUSD);
+                                parameterDetailsStorages.Add("@FromDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].FromDate);
+                                parameterDetailsStorages.Add("@StorageDetailId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageDetailId);
+                                parameterDetailsStorages.Add("@StorageId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageId);
+                                parameterDetailsStorages.Add("@ToDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].ToDate);
+                                parameterDetailsStorages.Add("@TotalDays", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].TotalDays);
+                                
+                            }
+                        }
                     }
 
                     //transaction.Commit();

@@ -9,7 +9,7 @@
         public int Id { get; set; }
         public int InvoiceNo { get; set; }
         public int IsDelivered { get; set; }
-        //public string DeliveredOn { get; set; }
+        public DateTime DeliveredOn { get; set; }
         public string DeliveredRemarks { get; set; } = string.Empty;
         public string User { get; set; } = string.Empty;
     }
