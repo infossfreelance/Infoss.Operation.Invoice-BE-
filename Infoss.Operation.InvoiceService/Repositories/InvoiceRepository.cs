@@ -192,7 +192,7 @@ namespace Infoss.Operation.InvoiceService.Repositories
                     //
                     // PaymentRequest Header
                     //
-                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_RePrinting_Status_Update", parameters, commandType: CommandType.StoredProcedure);
+                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_Delivered_Status_Update", parameters, commandType: CommandType.StoredProcedure);
 
 
                     responsePage.Code = 200;
