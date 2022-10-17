@@ -211,7 +211,7 @@ namespace Infoss.Operation.InvoiceService.Repositories
             }
         }
 
-        public async Task<ResponsePage<InvoiceResponsePage>> Read(RequestPage requestPage)
+        public async Task<ResponsePage<InvoiceResponsePage>> Read(InvoiceRequestPage requestPage)
         {
             var responsePage = new ResponsePage<InvoiceResponsePage>();
 
@@ -488,15 +488,20 @@ namespace Infoss.Operation.InvoiceService.Repositories
 
                         var affectedDetailRows = await connection.ExecuteAsync("operation.SP_InvoiceDetail_Create", parameterDetails, commandType: CommandType.StoredProcedure);
 
+                        int detailid = parameterDetails.Get<int>("@RETURNVALUE");
+
                         if (invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count != 0)
                         {
                             for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count; j++)
                             {
                                 var parameterDetailsProfitShares = new DynamicParameters();
-                                parameterDetailsProfitShares.Add("@CompanyId", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].CompanyId);
-                                //parameterDetailsProfitShares.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
-                                //parameterDetailsProfitShares.Add("@CreatedOn", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
-                                parameterDetailsProfitShares.Add("@InvoicesDetilId", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].InvoiceDetilId);
+                                parameterDetailsProfitShares.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
+                                parameterDetailsProfitShares.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+                                parameterDetailsProfitShares.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+                                parameterDetailsProfitShares.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+                                parameterDetailsProfitShares.Add("@InvoiceDetailId", detailid);
+                                parameterDetailsProfitShares.Add("@InvoiceDetailSequence", i);
+                                parameterDetailsProfitShares.Add("@Sequence", j+1);
                                 parameterDetailsProfitShares.Add("@BFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
                                 parameterDetailsProfitShares.Add("@BFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet40);
                                 parameterDetailsProfitShares.Add("@BFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetHQ);
@@ -514,6 +519,9 @@ namespace Infoss.Operation.InvoiceService.Repositories
                                 parameterDetailsProfitShares.Add("@SRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateHQ);
                                 parameterDetailsProfitShares.Add("@SRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateM3);
                                 parameterDetailsProfitShares.Add("@Percentage", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].Percentage);
+                                parameterDetailsProfitShares.Add("@IdLama ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].IdLama);
+
+                                var affectedDetailProfitSharesRows = await connection.ExecuteAsync("operation.SP_InvoiceDetailProfitShare_Create", parameterDetailsProfitShares, commandType: CommandType.StoredProcedure);
                             }
                         }
 
@@ -522,18 +530,22 @@ namespace Infoss.Operation.InvoiceService.Repositories
                             for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count; j++)
                             {
                                 var parameterDetailsStorages = new DynamicParameters();
-                                parameterDetailsStorages.Add("@CompanyId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].CompanyId);
-                                //parameterDetailsStorages.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].BFeet20);
-                                //parameterDetailsStorages.Add("@CreatedOn", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].BFeet20);
-                                parameterDetailsStorages.Add("@InvoicesDetilId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].InvoiceDetailId);
-                                parameterDetailsStorages.Add("@AmountIDR", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountIDR);
-                                parameterDetailsStorages.Add("@AmountUSD", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountUSD);
+                                parameterDetailsStorages.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
+                                parameterDetailsStorages.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+                                parameterDetailsStorages.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+                                parameterDetailsStorages.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+                                parameterDetailsStorages.Add("@InvoiceDetailId", detailid);
+                                parameterDetailsStorages.Add("@InvoiceDetailSequence", i);
+                                parameterDetailsStorages.Add("@Sequence", j + 1);
                                 parameterDetailsStorages.Add("@FromDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].FromDate);
-                                parameterDetailsStorages.Add("@StorageDetailId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageDetailId);
-                                parameterDetailsStorages.Add("@StorageId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageId);
                                 parameterDetailsStorages.Add("@ToDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].ToDate);
                                 parameterDetailsStorages.Add("@TotalDays", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].TotalDays);
-                                
+                                parameterDetailsStorages.Add("@StorageDetailId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageDetailId);
+                                parameterDetailsStorages.Add("@AmountIDR", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountIDR);
+                                parameterDetailsStorages.Add("@AmountUSD", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountUSD);
+                                parameterDetailsStorages.Add("@StorageId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageId);
+
+                                var affectedDetailStoragesRows = await connection.ExecuteAsync("operation.SP_InvoiceDetailStorage_Create", parameterDetailsStorages, commandType: CommandType.StoredProcedure);
                             }
                         }
                     }

@@ -60,11 +60,23 @@ namespace Infoss.Operation.InvoiceService.Controllers
 
         [Route("PostByPage")]
         [HttpPost]
-        public async Task<ResponsePage<InvoiceResponsePage>> Post(int pageNumber, int pageSize, [FromBody] UserLogin userLogin)
+        //public async Task<ResponsePage<InvoiceResponsePage>> Post(int pageNumber, int pageSize, [FromBody] UserLogin userLogin)
+        public async Task<ResponsePage<InvoiceResponsePage>> Post(int pageNumber, int pageSize, [FromBody] InvoiceGetPageRequest userLogin)
         {
+            //var route = Request.Path.Value;
+
+            //var requestPage = new RequestPage();
+            //requestPage.RowStatus = "ACT";
+            //requestPage.UserLogin = userLogin;
+            //requestPage.PageNumber = pageNumber;
+            //requestPage.PageSize = pageSize;
+
+            //var responsePage = await invoiceRepository.Read(requestPage);
+            //return responsePage;
+
             var route = Request.Path.Value;
 
-            var requestPage = new RequestPage();
+            var requestPage = new InvoiceRequestPage();
             requestPage.RowStatus = "ACT";
             requestPage.UserLogin = userLogin;
             requestPage.PageNumber = pageNumber;
@@ -72,7 +84,6 @@ namespace Infoss.Operation.InvoiceService.Controllers
 
             var responsePage = await invoiceRepository.Read(requestPage);
             return responsePage;
-
         }
 
         [Route("PostById")]
