@@ -217,6 +217,18 @@ namespace Infoss.Operation.InvoiceService.Repositories
 
             try
             {
+                int a = requestPage.UserLogin.Filter.Length;
+                string queryfilter = "";
+                for (int i = 0; i < a; i++)
+                {
+                    string x = "";
+                    string y = "";
+                    y = requestPage.UserLogin.Filter[i].Field;
+                    x = requestPage.UserLogin.Filter[i].Data;
+                    queryfilter = queryfilter + " AND iv." + y + " LIKE '%" + x + "%' ";
+                }
+                string yu = queryfilter;
+
                 var parameters = new DynamicParameters();
 
                 parameters.Add("@RowStatus", requestPage.RowStatus);
@@ -227,12 +239,14 @@ namespace Infoss.Operation.InvoiceService.Repositories
                 parameters.Add("@Id", 0);
                 parameters.Add("@PageNo", requestPage.PageNumber);
                 parameters.Add("@PageSize", requestPage.PageSize);
+                parameters.Add("@Filter", queryfilter);
                 parameters.Add("@RowCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 parameters.Add("@PageCount", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
                 using (var connection = new SqlConnection(connectionString))
                 {
-                    using (var multi = (await connection.QueryMultipleAsync("operation.SP_Invoice_Read", parameters, commandType: CommandType.StoredProcedure)))
+                    //using (var multi = (await connection.QueryMultipleAsync("operation.SP_Invoice_Read", parameters, commandType: CommandType.StoredProcedure)))
+                    using (var multi = (await connection.QueryMultipleAsync("operation.SP_Invoice_Read_Filter", parameters, commandType: CommandType.StoredProcedure)))
                     {
                         InvoiceResponsePage invoiceResponsePage = new InvoiceResponsePage();
 
