@@ -26,6 +26,7 @@ namespace Infoss.Operation.InvoiceService.Repositories
             parameters.Add("@InvoiceNo", invoiceHeader.InvoiceHeader.InvoiceNo);
             parameters.Add("@DebetCredit", invoiceHeader.InvoiceHeader.DebetCredit);
             parameters.Add("@ShipmentId", invoiceHeader.InvoiceHeader.ShipmentId);
+            parameters.Add("@ShipmentNo", invoiceHeader.InvoiceHeader.ShipmentNo);
             parameters.Add("@CustomerTypeId", invoiceHeader.InvoiceHeader.CustomerTypeId);
             parameters.Add("@CustomerId", invoiceHeader.InvoiceHeader.CustomerId);
             parameters.Add("@CustomerName", invoiceHeader.InvoiceHeader.CustomerName);
