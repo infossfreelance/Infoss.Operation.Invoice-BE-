@@ -7,10 +7,14 @@ namespace Infoss.Operation.InvoiceService.Repositories
     public class InvoiceRepository : IInvoiceRepository
     {
         private string connectionString = string.Empty;
+        private readonly InvoiceHeaderRepository invoiceHeaderRepo;
+        private readonly InvoiceDetailRepository invoiceDetailRepo;
 
         public InvoiceRepository(IConfiguration configuration)
         {
             connectionString = configuration.GetConnectionString("SqlConnection");
+            invoiceHeaderRepo = new InvoiceHeaderRepository(new SqlConnection(connectionString));
+            invoiceDetailRepo = new InvoiceDetailRepository(new SqlConnection(connectionString));
         }
 
         public async Task<ResponsePage<InvoiceResponsePage>> ReadAll(RequestPage requestPage)
@@ -374,362 +378,460 @@ namespace Infoss.Operation.InvoiceService.Repositories
 
         public async Task<ResponsePage<InvoiceResponse>> Create(InvoiceRequestTransaction invoiceRequest)
         {
-            var responsePage = new ResponsePage<InvoiceResponse>();
+            InvoiceHeaderTransaction invoiceHeaderTransaction = new InvoiceHeaderTransaction();
+            InvoiceDetailTransaction invoiceDetailTransaction = new InvoiceDetailTransaction();
 
-            try
+            invoiceHeaderTransaction.InvoiceHeader = invoiceRequest.Invoice;
+            invoiceDetailTransaction.InvoiceDetails = invoiceRequest.InvoiceDetails;
+
+            using (var connection = new SqlConnection(connectionString))
             {
-                var parameters = new DynamicParameters();
+                var response = new Response();
+                var responsePage = new ResponsePage<InvoiceResponse>();
 
-                parameters.Add("@RowStatus", invoiceRequest.Invoice.RowStatus == "" ? "ACT" : invoiceRequest.Invoice.RowStatus);
-                parameters.Add("@CountryId", invoiceRequest.Invoice.CountryId);
-                parameters.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
-                parameters.Add("@BranchId", invoiceRequest.Invoice.BranchId);
-                parameters.Add("@Id", invoiceRequest.Invoice.Id);
-                parameters.Add("@TicketId", invoiceRequest.Invoice.TicketId);
-                parameters.Add("@InvoiceNo", invoiceRequest.Invoice.InvoiceNo);
-                parameters.Add("@DebetCredit", invoiceRequest.Invoice.DebetCredit);
-                parameters.Add("@ShipmentId", invoiceRequest.Invoice.ShipmentId);
-                parameters.Add("@CustomerTypeId", invoiceRequest.Invoice.CustomerTypeId);
-                parameters.Add("@CustomerId", invoiceRequest.Invoice.CustomerId);
-                parameters.Add("@CustomerName", invoiceRequest.Invoice.CustomerName);
-                parameters.Add("@CustomerAddress", invoiceRequest.Invoice.CustomerAddress);
-                parameters.Add("@BillId", invoiceRequest.Invoice.BillId);
-                parameters.Add("@BillName", invoiceRequest.Invoice.BillName);
-                parameters.Add("@BillAddress", invoiceRequest.Invoice.BillAddress);
-                parameters.Add("@InvoicesTo", invoiceRequest.Invoice.InvoicesTo);
-                parameters.Add("@InvoiceStatus", invoiceRequest.Invoice.InvoiceStatus);
-                parameters.Add("@PaymentUSD", invoiceRequest.Invoice.PaymentUSD);
-                parameters.Add("@PaymentIDR", invoiceRequest.Invoice.PaymentIDR);
-                parameters.Add("@TotalVatUSD", invoiceRequest.Invoice.TotalVatUSD);
-                parameters.Add("@TotalVatIDR", invoiceRequest.Invoice.TotalVatIDR);
-                parameters.Add("@Rate", invoiceRequest.Invoice.Rate);
-                parameters.Add("@ExRateDate", invoiceRequest.Invoice.ExRateDate);
-                parameters.Add("@Period", invoiceRequest.Invoice.Period);
-                parameters.Add("@YearPeriod", invoiceRequest.Invoice.YearPeriod);
-                parameters.Add("@InvoicesAgent", invoiceRequest.Invoice.InvoicesAgent);
-                parameters.Add("@InvoicesEdit", invoiceRequest.Invoice.InvoicesEdit);
-                parameters.Add("@JenisInvoices", invoiceRequest.Invoice.JenisInvoices);
-                parameters.Add("@LinkTo", invoiceRequest.Invoice.LinkTo);
-                parameters.Add("@DueDate", invoiceRequest.Invoice.DueDate);
-                parameters.Add("@Paid", invoiceRequest.Invoice.Paid);
-                parameters.Add("@PaidOn", invoiceRequest.Invoice.PaidOn);
-                parameters.Add("@SaveOR", invoiceRequest.Invoice.SaveOR);
-                parameters.Add("@BadDebt", invoiceRequest.Invoice.BadDebt);
-                parameters.Add("@BadDebtOn", invoiceRequest.Invoice.BadDebtOn);
-                parameters.Add("@ReBadDebt", invoiceRequest.Invoice.ReBadDebt);
-                parameters.Add("@DateReBadDebt", invoiceRequest.Invoice.DateReBadDebt);
-                parameters.Add("@Printing", invoiceRequest.Invoice.Printing);
-                parameters.Add("@PrintedOn", invoiceRequest.Invoice.PrintedOn);
-                parameters.Add("@Deleted", invoiceRequest.Invoice.Deleted);
-                parameters.Add("@DeletedOn", invoiceRequest.Invoice.DeletedOn);
-                parameters.Add("@InvoiceNo2", invoiceRequest.Invoice.InvoiceNo2);
-                parameters.Add("@InvHeader", invoiceRequest.Invoice.InvHeader);
-                parameters.Add("@ExRateId", invoiceRequest.Invoice.ExRateId);
-                parameters.Add("@RePrintApproved", invoiceRequest.Invoice.RePrintApproved);
-                parameters.Add("@RePrintApprovedOn", invoiceRequest.Invoice.RePrintApprovedOn);
-                parameters.Add("@RePrintApprovedBy", invoiceRequest.Invoice.RePrintApprovedBy);
-                parameters.Add("@DeletedRemarks", invoiceRequest.Invoice.DeletedRemarks);
-                parameters.Add("@IdLama", invoiceRequest.Invoice.IdLama);
-                parameters.Add("@IsCostToCost", invoiceRequest.Invoice.IsCostToCost);
-                parameters.Add("@SFPNoFormat", invoiceRequest.Invoice.SFPNoFormat);
-                parameters.Add("@SFPDetailId", invoiceRequest.Invoice.SFPDetailId);
-                parameters.Add("@UniqueKeySFP", invoiceRequest.Invoice.UniqueKeySFP);
-                parameters.Add("@UniqueKeyInvoice", invoiceRequest.Invoice.UniqueKeyInvoice);
-                parameters.Add("@DeleteType", invoiceRequest.Invoice.DeleteType);
-                parameters.Add("@DeleteTypeRefInvId", invoiceRequest.Invoice.DeleteTypeRefInvId);
-                parameters.Add("@KursKMK", invoiceRequest.Invoice.KursKMK);
-                parameters.Add("@KursKMKId", invoiceRequest.Invoice.KursKMKId);
-                parameters.Add("@IsDelivered", invoiceRequest.Invoice.IsDelivered);
-                parameters.Add("@DeliveredOn", invoiceRequest.Invoice.DeliveredOn);
-                parameters.Add("@DeliveredRemarks", invoiceRequest.Invoice.DeliveredRemarks);
-                parameters.Add("@SFPReference", invoiceRequest.Invoice.SFPReference);
-                parameters.Add("@ApprovedCredit", invoiceRequest.Invoice.ApprovedCredit);
-                parameters.Add("@ApprovedCreditBy", invoiceRequest.Invoice.ApprovedCreditBy);
-                parameters.Add("@ApprovedCreditOn", invoiceRequest.Invoice.ApprovedCreditOn);
-                parameters.Add("@ApprovedCreditRemarks", invoiceRequest.Invoice.ApprovedCreditRemarks);
-                parameters.Add("@PackingListNo", invoiceRequest.Invoice.PackingListNo);
-                parameters.Add("@SICustomerNo", invoiceRequest.Invoice.SICustomerNo);
-                parameters.Add("@Reference", invoiceRequest.Invoice.Reference);
-                parameters.Add("@IsStampDuty", invoiceRequest.Invoice.IsStampDuty);
-                parameters.Add("@StampDutyAmount", invoiceRequest.Invoice.StampDutyAmount);
-                parameters.Add("@PEJKPNumber", invoiceRequest.Invoice.PEJKPNumber);
-                parameters.Add("@PEJKPReference", invoiceRequest.Invoice.PEJKPReference);
-                parameters.Add("@CreatedBy", invoiceRequest.Invoice.User);
-                parameters.Add("@RETURNVALUE", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+                await connection.OpenAsync();
+                var transaction = connection.BeginTransaction();
 
-
-                using (var connection = new SqlConnection(connectionString))
+                try
                 {
-                    //
-                    // Invoice Header
-                    //
-                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_Create", parameters, commandType: CommandType.StoredProcedure);
+                    // Invoice Header Insert
+                    response = await invoiceHeaderRepo.Create(invoiceHeaderTransaction);
 
-                    int id = parameters.Get<int>("@RETURNVALUE");
+                    // Invoice Detail Insert
+                    invoiceDetailRepo.invoiceId = invoiceHeaderTransaction.InvoiceHeader.Id;
+                    invoiceDetailRepo.countryId = invoiceHeaderTransaction.InvoiceHeader.CountryId;
+                    invoiceDetailRepo.companyId = invoiceHeaderTransaction.InvoiceHeader.CompanyId;
+                    invoiceDetailRepo.branchId = invoiceHeaderTransaction.InvoiceHeader.BranchId;
 
-                    //
-                    // InvoiceDetail
-                    //
-                    for (int i = 0; i < invoiceRequest.InvoiceDetails.Count; i++)
-                    {
-                        var parameterDetails = new DynamicParameters();
+                    response = await invoiceDetailRepo.Create(invoiceDetailTransaction);
 
-                        parameterDetails.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
-                        parameterDetails.Add("@CountryId", invoiceRequest.Invoice.CountryId);
-                        parameterDetails.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
-                        parameterDetails.Add("@BranchId", invoiceRequest.Invoice.BranchId);
-                        parameterDetails.Add("@InvoiceId", id);
-                        parameterDetails.Add("@Sequence", i+1);
-                        parameterDetails.Add("@DebetCredit", invoiceRequest.InvoiceDetails[i].DebetCredit);
-                        parameterDetails.Add("@AccountId", invoiceRequest.InvoiceDetails[i].AccountId);
-                        parameterDetails.Add("@Description", invoiceRequest.InvoiceDetails[i].Description);
-                        parameterDetails.Add("@Type", invoiceRequest.InvoiceDetails[i].Type);
-                        parameterDetails.Add("@CodingQuantity", invoiceRequest.InvoiceDetails[i].CodingQuantity);
-                        parameterDetails.Add("@Quantity", invoiceRequest.InvoiceDetails[i].Quantity);
-                        parameterDetails.Add("@PerQty", invoiceRequest.InvoiceDetails[i].PerQty);
-                        parameterDetails.Add("@Sign", invoiceRequest.InvoiceDetails[i].Sign);
-                        parameterDetails.Add("@AmountCrr", invoiceRequest.InvoiceDetails[i].AmountCrr);
-                        parameterDetails.Add("@Amount", invoiceRequest.InvoiceDetails[i].Amount);
-                        parameterDetails.Add("@PercentVat", invoiceRequest.InvoiceDetails[i].PercentVat);
-                        parameterDetails.Add("@AmountVat", invoiceRequest.InvoiceDetails[i].AmountVat);
-                        parameterDetails.Add("@EPLDetailId", invoiceRequest.InvoiceDetails[i].EPLDetailId);
-                        parameterDetails.Add("@VatId", invoiceRequest.InvoiceDetails[i].VatId);
-                        parameterDetails.Add("@IdLama", invoiceRequest.InvoiceDetails[i].IdLama);
-                        parameterDetails.Add("@IsCostToCost", invoiceRequest.InvoiceDetails[i].IsCostToCost);
-                        parameterDetails.Add("@OriginalUsd", invoiceRequest.InvoiceDetails[i].OriginalUsd);
-                        parameterDetails.Add("@OriginalRate", invoiceRequest.InvoiceDetails[i].OriginalRate);
-                        parameterDetails.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].User);
+                    transaction.Commit();
 
-                        var affectedDetailRows = await connection.ExecuteAsync("operation.SP_InvoiceDetail_Create", parameterDetails, commandType: CommandType.StoredProcedure);
-
-                        int detailid = parameterDetails.Get<int>("@RETURNVALUE");
-
-                        if (invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count != 0)
-                        {
-                            for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count; j++)
-                            {
-                                var parameterDetailsProfitShares = new DynamicParameters();
-                                parameterDetailsProfitShares.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
-                                parameterDetailsProfitShares.Add("@CountryId", invoiceRequest.Invoice.CountryId);
-                                parameterDetailsProfitShares.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
-                                parameterDetailsProfitShares.Add("@BranchId", invoiceRequest.Invoice.BranchId);
-                                parameterDetailsProfitShares.Add("@InvoiceDetailId", detailid);
-                                parameterDetailsProfitShares.Add("@InvoiceDetailSequence", i);
-                                parameterDetailsProfitShares.Add("@Sequence", j+1);
-                                parameterDetailsProfitShares.Add("@BFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
-                                parameterDetailsProfitShares.Add("@BFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet40);
-                                parameterDetailsProfitShares.Add("@BFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetHQ);
-                                parameterDetailsProfitShares.Add("@BFeetM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetM3);
-                                parameterDetailsProfitShares.Add("@SFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeet20);
-                                parameterDetailsProfitShares.Add("@SFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeet40);
-                                parameterDetailsProfitShares.Add("@SFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeetHQ);
-                                parameterDetailsProfitShares.Add("@SFeetM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeetM3);
-                                parameterDetailsProfitShares.Add("@BRate20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRate20);
-                                parameterDetailsProfitShares.Add("@BRate40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRate40);
-                                parameterDetailsProfitShares.Add("@BRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRateHQ);
-                                parameterDetailsProfitShares.Add("@BRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRateM3);
-                                parameterDetailsProfitShares.Add("@SRate20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRate20);
-                                parameterDetailsProfitShares.Add("@SRate40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRate40);
-                                parameterDetailsProfitShares.Add("@SRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateHQ);
-                                parameterDetailsProfitShares.Add("@SRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateM3);
-                                parameterDetailsProfitShares.Add("@Percentage", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].Percentage);
-                                parameterDetailsProfitShares.Add("@IdLama ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].IdLama);
-
-                                var affectedDetailProfitSharesRows = await connection.ExecuteAsync("operation.SP_InvoiceDetailProfitShare_Create", parameterDetailsProfitShares, commandType: CommandType.StoredProcedure);
-                            }
-                        }
-
-                        if (invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count != 0)
-                        {
-                            for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count; j++)
-                            {
-                                var parameterDetailsStorages = new DynamicParameters();
-                                parameterDetailsStorages.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
-                                parameterDetailsStorages.Add("@CountryId", invoiceRequest.Invoice.CountryId);
-                                parameterDetailsStorages.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
-                                parameterDetailsStorages.Add("@BranchId", invoiceRequest.Invoice.BranchId);
-                                parameterDetailsStorages.Add("@InvoiceDetailId", detailid);
-                                parameterDetailsStorages.Add("@InvoiceDetailSequence", i);
-                                parameterDetailsStorages.Add("@Sequence", j + 1);
-                                parameterDetailsStorages.Add("@FromDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].FromDate);
-                                parameterDetailsStorages.Add("@ToDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].ToDate);
-                                parameterDetailsStorages.Add("@TotalDays", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].TotalDays);
-                                parameterDetailsStorages.Add("@StorageDetailId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageDetailId);
-                                parameterDetailsStorages.Add("@AmountIDR", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountIDR);
-                                parameterDetailsStorages.Add("@AmountUSD", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountUSD);
-                                parameterDetailsStorages.Add("@StorageId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageId);
-
-                                var affectedDetailStoragesRows = await connection.ExecuteAsync("operation.SP_InvoiceDetailStorage_Create", parameterDetailsStorages, commandType: CommandType.StoredProcedure);
-                            }
-                        }
-                    }
-
-                    //transaction.Commit();
-                    //}
-
-                    responsePage.Code = 200;
-                    responsePage.Message = "Data created";
+                    responsePage.Code = response.Code;
+                    responsePage.Message = response.Message;
 
                     return responsePage;
 
                 }
-            }
-            catch (Exception ex)
-            {
-                responsePage.Code = 500;
-                responsePage.Error = ex.Message;
-                responsePage.Message = "Faile to create";
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
 
-                return responsePage;
+                    responsePage.Code = response.Code;
+                    responsePage.Error = ex.Message;
+                    responsePage.Message = response.Message;
+
+                    return responsePage;
+                }
             }
+            #region "Un used"
+            //var responsePage = new ResponsePage<InvoiceResponse>();
+
+            //try
+            //{
+            //    var parameters = new DynamicParameters();
+
+            //    parameters.Add("@RowStatus", invoiceRequest.Invoice.RowStatus == "" ? "ACT" : invoiceRequest.Invoice.RowStatus);
+            //    parameters.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+            //    parameters.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+            //    parameters.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+            //    parameters.Add("@Id", invoiceRequest.Invoice.Id);
+            //    parameters.Add("@TicketId", invoiceRequest.Invoice.TicketId);
+            //    parameters.Add("@InvoiceNo", invoiceRequest.Invoice.InvoiceNo);
+            //    parameters.Add("@DebetCredit", invoiceRequest.Invoice.DebetCredit);
+            //    parameters.Add("@ShipmentId", invoiceRequest.Invoice.ShipmentId);
+            //    parameters.Add("@CustomerTypeId", invoiceRequest.Invoice.CustomerTypeId);
+            //    parameters.Add("@CustomerId", invoiceRequest.Invoice.CustomerId);
+            //    parameters.Add("@CustomerName", invoiceRequest.Invoice.CustomerName);
+            //    parameters.Add("@CustomerAddress", invoiceRequest.Invoice.CustomerAddress);
+            //    parameters.Add("@BillId", invoiceRequest.Invoice.BillId);
+            //    parameters.Add("@BillName", invoiceRequest.Invoice.BillName);
+            //    parameters.Add("@BillAddress", invoiceRequest.Invoice.BillAddress);
+            //    parameters.Add("@InvoicesTo", invoiceRequest.Invoice.InvoicesTo);
+            //    parameters.Add("@InvoiceStatus", invoiceRequest.Invoice.InvoiceStatus);
+            //    parameters.Add("@PaymentUSD", invoiceRequest.Invoice.PaymentUSD);
+            //    parameters.Add("@PaymentIDR", invoiceRequest.Invoice.PaymentIDR);
+            //    parameters.Add("@TotalVatUSD", invoiceRequest.Invoice.TotalVatUSD);
+            //    parameters.Add("@TotalVatIDR", invoiceRequest.Invoice.TotalVatIDR);
+            //    parameters.Add("@Rate", invoiceRequest.Invoice.Rate);
+            //    parameters.Add("@ExRateDate", invoiceRequest.Invoice.ExRateDate);
+            //    parameters.Add("@Period", invoiceRequest.Invoice.Period);
+            //    parameters.Add("@YearPeriod", invoiceRequest.Invoice.YearPeriod);
+            //    parameters.Add("@InvoicesAgent", invoiceRequest.Invoice.InvoicesAgent);
+            //    parameters.Add("@InvoicesEdit", invoiceRequest.Invoice.InvoicesEdit);
+            //    parameters.Add("@JenisInvoices", invoiceRequest.Invoice.JenisInvoices);
+            //    parameters.Add("@LinkTo", invoiceRequest.Invoice.LinkTo);
+            //    parameters.Add("@DueDate", invoiceRequest.Invoice.DueDate);
+            //    parameters.Add("@Paid", invoiceRequest.Invoice.Paid);
+            //    parameters.Add("@PaidOn", invoiceRequest.Invoice.PaidOn);
+            //    parameters.Add("@SaveOR", invoiceRequest.Invoice.SaveOR);
+            //    parameters.Add("@BadDebt", invoiceRequest.Invoice.BadDebt);
+            //    parameters.Add("@BadDebtOn", invoiceRequest.Invoice.BadDebtOn);
+            //    parameters.Add("@ReBadDebt", invoiceRequest.Invoice.ReBadDebt);
+            //    parameters.Add("@DateReBadDebt", invoiceRequest.Invoice.DateReBadDebt);
+            //    parameters.Add("@Printing", invoiceRequest.Invoice.Printing);
+            //    parameters.Add("@PrintedOn", invoiceRequest.Invoice.PrintedOn);
+            //    parameters.Add("@Deleted", invoiceRequest.Invoice.Deleted);
+            //    parameters.Add("@DeletedOn", invoiceRequest.Invoice.DeletedOn);
+            //    parameters.Add("@InvoiceNo2", invoiceRequest.Invoice.InvoiceNo2);
+            //    parameters.Add("@InvHeader", invoiceRequest.Invoice.InvHeader);
+            //    parameters.Add("@ExRateId", invoiceRequest.Invoice.ExRateId);
+            //    parameters.Add("@RePrintApproved", invoiceRequest.Invoice.RePrintApproved);
+            //    parameters.Add("@RePrintApprovedOn", invoiceRequest.Invoice.RePrintApprovedOn);
+            //    parameters.Add("@RePrintApprovedBy", invoiceRequest.Invoice.RePrintApprovedBy);
+            //    parameters.Add("@DeletedRemarks", invoiceRequest.Invoice.DeletedRemarks);
+            //    parameters.Add("@IdLama", invoiceRequest.Invoice.IdLama);
+            //    parameters.Add("@IsCostToCost", invoiceRequest.Invoice.IsCostToCost);
+            //    parameters.Add("@SFPNoFormat", invoiceRequest.Invoice.SFPNoFormat);
+            //    parameters.Add("@SFPDetailId", invoiceRequest.Invoice.SFPDetailId);
+            //    parameters.Add("@UniqueKeySFP", invoiceRequest.Invoice.UniqueKeySFP);
+            //    parameters.Add("@UniqueKeyInvoice", invoiceRequest.Invoice.UniqueKeyInvoice);
+            //    parameters.Add("@DeleteType", invoiceRequest.Invoice.DeleteType);
+            //    parameters.Add("@DeleteTypeRefInvId", invoiceRequest.Invoice.DeleteTypeRefInvId);
+            //    parameters.Add("@KursKMK", invoiceRequest.Invoice.KursKMK);
+            //    parameters.Add("@KursKMKId", invoiceRequest.Invoice.KursKMKId);
+            //    parameters.Add("@IsDelivered", invoiceRequest.Invoice.IsDelivered);
+            //    parameters.Add("@DeliveredOn", invoiceRequest.Invoice.DeliveredOn);
+            //    parameters.Add("@DeliveredRemarks", invoiceRequest.Invoice.DeliveredRemarks);
+            //    parameters.Add("@SFPReference", invoiceRequest.Invoice.SFPReference);
+            //    parameters.Add("@ApprovedCredit", invoiceRequest.Invoice.ApprovedCredit);
+            //    parameters.Add("@ApprovedCreditBy", invoiceRequest.Invoice.ApprovedCreditBy);
+            //    parameters.Add("@ApprovedCreditOn", invoiceRequest.Invoice.ApprovedCreditOn);
+            //    parameters.Add("@ApprovedCreditRemarks", invoiceRequest.Invoice.ApprovedCreditRemarks);
+            //    parameters.Add("@PackingListNo", invoiceRequest.Invoice.PackingListNo);
+            //    parameters.Add("@SICustomerNo", invoiceRequest.Invoice.SICustomerNo);
+            //    parameters.Add("@Reference", invoiceRequest.Invoice.Reference);
+            //    parameters.Add("@IsStampDuty", invoiceRequest.Invoice.IsStampDuty);
+            //    parameters.Add("@StampDutyAmount", invoiceRequest.Invoice.StampDutyAmount);
+            //    parameters.Add("@PEJKPNumber", invoiceRequest.Invoice.PEJKPNumber);
+            //    parameters.Add("@PEJKPReference", invoiceRequest.Invoice.PEJKPReference);
+            //    parameters.Add("@CreatedBy", invoiceRequest.Invoice.User);
+            //    parameters.Add("@RETURNVALUE", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+
+
+            //    using (var connection = new SqlConnection(connectionString))
+            //    {
+            //        //
+            //        // Invoice Header
+            //        //
+            //        var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_Create", parameters, commandType: CommandType.StoredProcedure);
+
+            //        int id = parameters.Get<int>("@RETURNVALUE");
+
+            //        //
+            //        // InvoiceDetail
+            //        //
+            //        for (int i = 0; i < invoiceRequest.InvoiceDetails.Count; i++)
+            //        {
+            //            var parameterDetails = new DynamicParameters();
+
+            //            parameterDetails.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
+            //            parameterDetails.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+            //            parameterDetails.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+            //            parameterDetails.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+            //            parameterDetails.Add("@InvoiceId", id);
+            //            parameterDetails.Add("@Sequence", i+1);
+            //            parameterDetails.Add("@DebetCredit", invoiceRequest.InvoiceDetails[i].DebetCredit);
+            //            parameterDetails.Add("@AccountId", invoiceRequest.InvoiceDetails[i].AccountId);
+            //            parameterDetails.Add("@Description", invoiceRequest.InvoiceDetails[i].Description);
+            //            parameterDetails.Add("@Type", invoiceRequest.InvoiceDetails[i].Type);
+            //            parameterDetails.Add("@CodingQuantity", invoiceRequest.InvoiceDetails[i].CodingQuantity);
+            //            parameterDetails.Add("@Quantity", invoiceRequest.InvoiceDetails[i].Quantity);
+            //            parameterDetails.Add("@PerQty", invoiceRequest.InvoiceDetails[i].PerQty);
+            //            parameterDetails.Add("@Sign", invoiceRequest.InvoiceDetails[i].Sign);
+            //            parameterDetails.Add("@AmountCrr", invoiceRequest.InvoiceDetails[i].AmountCrr);
+            //            parameterDetails.Add("@Amount", invoiceRequest.InvoiceDetails[i].Amount);
+            //            parameterDetails.Add("@PercentVat", invoiceRequest.InvoiceDetails[i].PercentVat);
+            //            parameterDetails.Add("@AmountVat", invoiceRequest.InvoiceDetails[i].AmountVat);
+            //            parameterDetails.Add("@EPLDetailId", invoiceRequest.InvoiceDetails[i].EPLDetailId);
+            //            parameterDetails.Add("@VatId", invoiceRequest.InvoiceDetails[i].VatId);
+            //            parameterDetails.Add("@IdLama", invoiceRequest.InvoiceDetails[i].IdLama);
+            //            parameterDetails.Add("@IsCostToCost", invoiceRequest.InvoiceDetails[i].IsCostToCost);
+            //            parameterDetails.Add("@OriginalUsd", invoiceRequest.InvoiceDetails[i].OriginalUsd);
+            //            parameterDetails.Add("@OriginalRate", invoiceRequest.InvoiceDetails[i].OriginalRate);
+            //            parameterDetails.Add("@CreatedBy", invoiceRequest.InvoiceDetails[i].User);
+
+            //            var affectedDetailRows = await connection.ExecuteAsync("operation.SP_InvoiceDetail_Create", parameterDetails, commandType: CommandType.StoredProcedure);
+
+            //            int detailid = parameterDetails.Get<int>("@RETURNVALUE");
+
+            //            if (invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count != 0)
+            //            {
+            //                for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares.Count; j++)
+            //                {
+            //                    var parameterDetailsProfitShares = new DynamicParameters();
+            //                    parameterDetailsProfitShares.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
+            //                    parameterDetailsProfitShares.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+            //                    parameterDetailsProfitShares.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+            //                    parameterDetailsProfitShares.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+            //                    parameterDetailsProfitShares.Add("@InvoiceDetailId", detailid);
+            //                    parameterDetailsProfitShares.Add("@InvoiceDetailSequence", i);
+            //                    parameterDetailsProfitShares.Add("@Sequence", j+1);
+            //                    parameterDetailsProfitShares.Add("@BFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet20);
+            //                    parameterDetailsProfitShares.Add("@BFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeet40);
+            //                    parameterDetailsProfitShares.Add("@BFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetHQ);
+            //                    parameterDetailsProfitShares.Add("@BFeetM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BFeetM3);
+            //                    parameterDetailsProfitShares.Add("@SFeet20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeet20);
+            //                    parameterDetailsProfitShares.Add("@SFeet40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeet40);
+            //                    parameterDetailsProfitShares.Add("@SFeetHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeetHQ);
+            //                    parameterDetailsProfitShares.Add("@SFeetM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SFeetM3);
+            //                    parameterDetailsProfitShares.Add("@BRate20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRate20);
+            //                    parameterDetailsProfitShares.Add("@BRate40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRate40);
+            //                    parameterDetailsProfitShares.Add("@BRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRateHQ);
+            //                    parameterDetailsProfitShares.Add("@BRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].BRateM3);
+            //                    parameterDetailsProfitShares.Add("@SRate20", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRate20);
+            //                    parameterDetailsProfitShares.Add("@SRate40", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRate40);
+            //                    parameterDetailsProfitShares.Add("@SRateHQ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateHQ);
+            //                    parameterDetailsProfitShares.Add("@SRateM3", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].SRateM3);
+            //                    parameterDetailsProfitShares.Add("@Percentage", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].Percentage);
+            //                    parameterDetailsProfitShares.Add("@IdLama ", invoiceRequest.InvoiceDetails[i].InvoiceDetailProfitShares[j].IdLama);
+
+            //                    var affectedDetailProfitSharesRows = await connection.ExecuteAsync("operation.SP_InvoiceDetailProfitShare_Create", parameterDetailsProfitShares, commandType: CommandType.StoredProcedure);
+            //                }
+            //            }
+
+            //            if (invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count != 0)
+            //            {
+            //                for (int j = 0; j < invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages.Count; j++)
+            //                {
+            //                    var parameterDetailsStorages = new DynamicParameters();
+            //                    parameterDetailsStorages.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
+            //                    parameterDetailsStorages.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+            //                    parameterDetailsStorages.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+            //                    parameterDetailsStorages.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+            //                    parameterDetailsStorages.Add("@InvoiceDetailId", detailid);
+            //                    parameterDetailsStorages.Add("@InvoiceDetailSequence", i);
+            //                    parameterDetailsStorages.Add("@Sequence", j + 1);
+            //                    parameterDetailsStorages.Add("@FromDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].FromDate);
+            //                    parameterDetailsStorages.Add("@ToDate", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].ToDate);
+            //                    parameterDetailsStorages.Add("@TotalDays", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].TotalDays);
+            //                    parameterDetailsStorages.Add("@StorageDetailId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageDetailId);
+            //                    parameterDetailsStorages.Add("@AmountIDR", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountIDR);
+            //                    parameterDetailsStorages.Add("@AmountUSD", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].AmountUSD);
+            //                    parameterDetailsStorages.Add("@StorageId", invoiceRequest.InvoiceDetails[i].InvoiceDetailStorages[j].StorageId);
+
+            //                    var affectedDetailStoragesRows = await connection.ExecuteAsync("operation.SP_InvoiceDetailStorage_Create", parameterDetailsStorages, commandType: CommandType.StoredProcedure);
+            //                }
+            //            }
+            //        }
+
+            //        //transaction.Commit();
+            //        //}
+
+            //        responsePage.Code = 200;
+            //        responsePage.Message = "Data created";
+
+            //        return responsePage;
+
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    responsePage.Code = 500;
+            //    responsePage.Error = ex.Message;
+            //    responsePage.Message = "Faile to create";
+
+            //    return responsePage;
+            //}    
+            #endregion
         }
 
         public async Task<ResponsePage<InvoiceResponse>> Update(InvoiceRequestTransaction invoiceRequest)
         {
-            var responsePage = new ResponsePage<InvoiceResponse>();
+            InvoiceHeaderTransaction invoiceHeaderTransaction = new InvoiceHeaderTransaction();
+            InvoiceDetailTransaction invoiceDetailTransaction = new InvoiceDetailTransaction();
 
-            try
+            invoiceHeaderTransaction.InvoiceHeader = invoiceRequest.Invoice;
+            invoiceDetailTransaction.InvoiceDetails = invoiceRequest.InvoiceDetails;
+
+            using (var connection = new SqlConnection(connectionString))
             {
-                var parameters = new DynamicParameters();
+                var response = new Response();
+                var responsePage = new ResponsePage<InvoiceResponse>();
 
-                parameters.Add("@RowStatus", invoiceRequest.Invoice.RowStatus == "" ? "ACT" : invoiceRequest.Invoice.RowStatus);
-                parameters.Add("@CountryId", invoiceRequest.Invoice.CountryId);
-                parameters.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
-                parameters.Add("@BranchId", invoiceRequest.Invoice.BranchId);
-                parameters.Add("@Id", invoiceRequest.Invoice.Id);
-                parameters.Add("@TicketId", invoiceRequest.Invoice.TicketId);
-                parameters.Add("@InvoiceNo", invoiceRequest.Invoice.InvoiceNo);
-                parameters.Add("@DebetCredit", invoiceRequest.Invoice.DebetCredit);
-                parameters.Add("@ShipmentId", invoiceRequest.Invoice.ShipmentId);
-                parameters.Add("@CustomerTypeId", invoiceRequest.Invoice.CustomerTypeId);
-                parameters.Add("@CustomerId", invoiceRequest.Invoice.CustomerId);
-                parameters.Add("@CustomerName", invoiceRequest.Invoice.CustomerName);
-                parameters.Add("@CustomerAddress", invoiceRequest.Invoice.CustomerAddress);
-                parameters.Add("@BillId", invoiceRequest.Invoice.BillId);
-                parameters.Add("@BillName", invoiceRequest.Invoice.BillName);
-                parameters.Add("@BillAddress", invoiceRequest.Invoice.BillAddress);
-                parameters.Add("@InvoicesTo", invoiceRequest.Invoice.InvoicesTo);
-                parameters.Add("@InvoiceStatus", invoiceRequest.Invoice.InvoiceStatus);
-                parameters.Add("@PaymentUSD", invoiceRequest.Invoice.PaymentUSD);
-                parameters.Add("@PaymentIDR", invoiceRequest.Invoice.PaymentIDR);
-                parameters.Add("@TotalVatUSD", invoiceRequest.Invoice.TotalVatUSD);
-                parameters.Add("@TotalVatIDR", invoiceRequest.Invoice.TotalVatIDR);
-                parameters.Add("@Rate", invoiceRequest.Invoice.Rate);
-                parameters.Add("@ExRateDate", invoiceRequest.Invoice.ExRateDate);
-                parameters.Add("@Period", invoiceRequest.Invoice.Period);
-                parameters.Add("@YearPeriod", invoiceRequest.Invoice.YearPeriod);
-                parameters.Add("@InvoicesAgent", invoiceRequest.Invoice.InvoicesAgent);
-                parameters.Add("@InvoicesEdit", invoiceRequest.Invoice.InvoicesEdit);
-                parameters.Add("@JenisInvoices", invoiceRequest.Invoice.JenisInvoices);
-                parameters.Add("@LinkTo", invoiceRequest.Invoice.LinkTo);
-                parameters.Add("@DueDate", invoiceRequest.Invoice.DueDate);
-                parameters.Add("@Paid", invoiceRequest.Invoice.Paid);
-                parameters.Add("@PaidOn", invoiceRequest.Invoice.PaidOn);
-                parameters.Add("@SaveOR", invoiceRequest.Invoice.SaveOR);
-                parameters.Add("@BadDebt", invoiceRequest.Invoice.BadDebt);
-                parameters.Add("@BadDebtOn", invoiceRequest.Invoice.BadDebtOn);
-                parameters.Add("@ReBadDebt", invoiceRequest.Invoice.ReBadDebt);
-                parameters.Add("@DateReBadDebt", invoiceRequest.Invoice.DateReBadDebt);
-                parameters.Add("@Printing", invoiceRequest.Invoice.Printing);
-                parameters.Add("@PrintedOn", invoiceRequest.Invoice.PrintedOn);
-                parameters.Add("@Deleted", invoiceRequest.Invoice.Deleted);
-                parameters.Add("@DeletedOn", invoiceRequest.Invoice.DeletedOn);
-                parameters.Add("@InvoiceNo2", invoiceRequest.Invoice.InvoiceNo2);
-                parameters.Add("@InvHeader", invoiceRequest.Invoice.InvHeader);
-                parameters.Add("@ExRateId", invoiceRequest.Invoice.ExRateId);
-                parameters.Add("@RePrintApproved", invoiceRequest.Invoice.RePrintApproved);
-                parameters.Add("@RePrintApprovedOn", invoiceRequest.Invoice.RePrintApprovedOn);
-                parameters.Add("@RePrintApprovedBy", invoiceRequest.Invoice.RePrintApprovedBy);
-                parameters.Add("@DeletedRemarks", invoiceRequest.Invoice.DeletedRemarks);
-                parameters.Add("@IdLama", invoiceRequest.Invoice.IdLama);
-                parameters.Add("@IsCostToCost", invoiceRequest.Invoice.IsCostToCost);
-                parameters.Add("@SFPNoFormat", invoiceRequest.Invoice.SFPNoFormat);
-                parameters.Add("@SFPDetailId", invoiceRequest.Invoice.SFPDetailId);
-                parameters.Add("@UniqueKeySFP", invoiceRequest.Invoice.UniqueKeySFP);
-                parameters.Add("@UniqueKeyInvoice", invoiceRequest.Invoice.UniqueKeyInvoice);
-                parameters.Add("@DeleteType", invoiceRequest.Invoice.DeleteType);
-                parameters.Add("@DeleteTypeRefInvId", invoiceRequest.Invoice.DeleteTypeRefInvId);
-                parameters.Add("@KursKMK", invoiceRequest.Invoice.KursKMK);
-                parameters.Add("@KursKMKId", invoiceRequest.Invoice.KursKMKId);
-                parameters.Add("@IsDelivered", invoiceRequest.Invoice.IsDelivered);
-                parameters.Add("@DeliveredOn", invoiceRequest.Invoice.DeliveredOn);
-                parameters.Add("@DeliveredRemarks", invoiceRequest.Invoice.DeliveredRemarks);
-                parameters.Add("@SFPReference", invoiceRequest.Invoice.SFPReference);
-                parameters.Add("@ApprovedCredit", invoiceRequest.Invoice.ApprovedCredit);
-                parameters.Add("@ApprovedCreditBy", invoiceRequest.Invoice.ApprovedCreditBy);
-                parameters.Add("@ApprovedCreditOn", invoiceRequest.Invoice.ApprovedCreditOn);
-                parameters.Add("@ApprovedCreditRemarks", invoiceRequest.Invoice.ApprovedCreditRemarks);
-                parameters.Add("@PackingListNo", invoiceRequest.Invoice.PackingListNo);
-                parameters.Add("@SICustomerNo", invoiceRequest.Invoice.SICustomerNo);
-                parameters.Add("@Reference", invoiceRequest.Invoice.Reference);
-                parameters.Add("@IsStampDuty", invoiceRequest.Invoice.IsStampDuty);
-                parameters.Add("@StampDutyAmount", invoiceRequest.Invoice.StampDutyAmount);
-                parameters.Add("@PEJKPNumber", invoiceRequest.Invoice.PEJKPNumber);
-                parameters.Add("@PEJKPReference", invoiceRequest.Invoice.PEJKPReference);
-                parameters.Add("@ModifiedBy", invoiceRequest.Invoice.User);
+                await connection.OpenAsync();
+                var transaction = connection.BeginTransaction();
 
-                using (var connection = new SqlConnection(connectionString))
+                try
                 {
-                    //
-                    // PaymentRequest Header
-                    //
-                    var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_Update", parameters, commandType: CommandType.StoredProcedure);
+                    // Invoice Header Update
+                    response = await invoiceHeaderRepo.Update(invoiceHeaderTransaction);
 
+                    // Invoice Detail Update
+                    invoiceDetailRepo.invoiceId = invoiceHeaderTransaction.InvoiceHeader.Id;
+                    invoiceDetailRepo.countryId = invoiceHeaderTransaction.InvoiceHeader.CountryId;
+                    invoiceDetailRepo.companyId = invoiceHeaderTransaction.InvoiceHeader.CompanyId;
+                    invoiceDetailRepo.branchId = invoiceHeaderTransaction.InvoiceHeader.BranchId;
+                    response = await invoiceDetailRepo.Update(invoiceDetailTransaction);
 
-                    //
-                    // PaymentRequestDetail
-                    //
-                    for (int i = 0; i < invoiceRequest.InvoiceDetails.Count; i++)
-                    {
-                        var parameterDetails = new DynamicParameters();
+                    transaction.Commit();
 
-                        parameterDetails.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
-                        parameterDetails.Add("@CountryId", invoiceRequest.Invoice.CountryId);
-                        parameterDetails.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
-                        parameterDetails.Add("@BranchId", invoiceRequest.Invoice.BranchId);
-                        parameterDetails.Add("@InvoiceId", invoiceRequest.Invoice.Id);
-                        parameterDetails.Add("@Sequence", i+1);
-                        parameterDetails.Add("@DebetCredit", invoiceRequest.InvoiceDetails[i].DebetCredit);
-                        parameterDetails.Add("@AccountId", invoiceRequest.InvoiceDetails[i].AccountId);
-                        parameterDetails.Add("@Description", invoiceRequest.InvoiceDetails[i].Description);
-                        parameterDetails.Add("@Type", invoiceRequest.InvoiceDetails[i].Type);
-                        parameterDetails.Add("@CodingQuantity", invoiceRequest.InvoiceDetails[i].CodingQuantity);
-                        parameterDetails.Add("@Quantity", invoiceRequest.InvoiceDetails[i].Quantity);
-                        parameterDetails.Add("@PerQty", invoiceRequest.InvoiceDetails[i].PerQty);
-                        parameterDetails.Add("@Sign", invoiceRequest.InvoiceDetails[i].Sign);
-                        parameterDetails.Add("@AmountCrr", invoiceRequest.InvoiceDetails[i].AmountCrr);
-                        parameterDetails.Add("@Amount", invoiceRequest.InvoiceDetails[i].Amount);
-                        parameterDetails.Add("@PercentVat", invoiceRequest.InvoiceDetails[i].PercentVat);
-                        parameterDetails.Add("@AmountVat", invoiceRequest.InvoiceDetails[i].AmountVat);
-                        parameterDetails.Add("@EPLDetailId", invoiceRequest.InvoiceDetails[i].EPLDetailId);
-                        parameterDetails.Add("@VatId", invoiceRequest.InvoiceDetails[i].VatId);
-                        parameterDetails.Add("@IdLama", invoiceRequest.InvoiceDetails[i].IdLama);
-                        parameterDetails.Add("@IsCostToCost", invoiceRequest.InvoiceDetails[i].IsCostToCost);
-                        parameterDetails.Add("@OriginalUsd", invoiceRequest.InvoiceDetails[i].OriginalUsd);
-                        parameterDetails.Add("@OriginalRate", invoiceRequest.InvoiceDetails[i].OriginalRate);
-                        parameterDetails.Add("@ModifiedBy", invoiceRequest.InvoiceDetails[i].User);
+                    responsePage.Code = response.Code;
+                    responsePage.Message = response.Message;
 
-                        var affectedDetailRows = await connection.ExecuteAsync("operation.SP_InvoiceDetail_Update", parameterDetails, commandType: CommandType.StoredProcedure);
-                    }
+                    return responsePage;
 
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
 
-                    //transaction.Commit();
-                    //}
-
-                    responsePage.Code = 200;
-                    responsePage.Message = "Data Updated";
+                    responsePage.Code = response.Code;
+                    responsePage.Error = ex.Message;
+                    responsePage.Message = response.Message;
 
                     return responsePage;
                 }
             }
-            catch (Exception ex)
-            {
-                responsePage.Code = 500;
-                responsePage.Error = ex.Message;
-                responsePage.Message = "Faile to update";
 
-                return responsePage;
-            }
+            #region "Un Used"
+            //var responsePage = new ResponsePage<InvoiceResponse>();
+
+            //try
+            //{
+            //    var parameters = new DynamicParameters();
+
+            //    parameters.Add("@RowStatus", invoiceRequest.Invoice.RowStatus == "" ? "ACT" : invoiceRequest.Invoice.RowStatus);
+            //    parameters.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+            //    parameters.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+            //    parameters.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+            //    parameters.Add("@Id", invoiceRequest.Invoice.Id);
+            //    parameters.Add("@TicketId", invoiceRequest.Invoice.TicketId);
+            //    parameters.Add("@InvoiceNo", invoiceRequest.Invoice.InvoiceNo);
+            //    parameters.Add("@DebetCredit", invoiceRequest.Invoice.DebetCredit);
+            //    parameters.Add("@ShipmentId", invoiceRequest.Invoice.ShipmentId);
+            //    parameters.Add("@CustomerTypeId", invoiceRequest.Invoice.CustomerTypeId);
+            //    parameters.Add("@CustomerId", invoiceRequest.Invoice.CustomerId);
+            //    parameters.Add("@CustomerName", invoiceRequest.Invoice.CustomerName);
+            //    parameters.Add("@CustomerAddress", invoiceRequest.Invoice.CustomerAddress);
+            //    parameters.Add("@BillId", invoiceRequest.Invoice.BillId);
+            //    parameters.Add("@BillName", invoiceRequest.Invoice.BillName);
+            //    parameters.Add("@BillAddress", invoiceRequest.Invoice.BillAddress);
+            //    parameters.Add("@InvoicesTo", invoiceRequest.Invoice.InvoicesTo);
+            //    parameters.Add("@InvoiceStatus", invoiceRequest.Invoice.InvoiceStatus);
+            //    parameters.Add("@PaymentUSD", invoiceRequest.Invoice.PaymentUSD);
+            //    parameters.Add("@PaymentIDR", invoiceRequest.Invoice.PaymentIDR);
+            //    parameters.Add("@TotalVatUSD", invoiceRequest.Invoice.TotalVatUSD);
+            //    parameters.Add("@TotalVatIDR", invoiceRequest.Invoice.TotalVatIDR);
+            //    parameters.Add("@Rate", invoiceRequest.Invoice.Rate);
+            //    parameters.Add("@ExRateDate", invoiceRequest.Invoice.ExRateDate);
+            //    parameters.Add("@Period", invoiceRequest.Invoice.Period);
+            //    parameters.Add("@YearPeriod", invoiceRequest.Invoice.YearPeriod);
+            //    parameters.Add("@InvoicesAgent", invoiceRequest.Invoice.InvoicesAgent);
+            //    parameters.Add("@InvoicesEdit", invoiceRequest.Invoice.InvoicesEdit);
+            //    parameters.Add("@JenisInvoices", invoiceRequest.Invoice.JenisInvoices);
+            //    parameters.Add("@LinkTo", invoiceRequest.Invoice.LinkTo);
+            //    parameters.Add("@DueDate", invoiceRequest.Invoice.DueDate);
+            //    parameters.Add("@Paid", invoiceRequest.Invoice.Paid);
+            //    parameters.Add("@PaidOn", invoiceRequest.Invoice.PaidOn);
+            //    parameters.Add("@SaveOR", invoiceRequest.Invoice.SaveOR);
+            //    parameters.Add("@BadDebt", invoiceRequest.Invoice.BadDebt);
+            //    parameters.Add("@BadDebtOn", invoiceRequest.Invoice.BadDebtOn);
+            //    parameters.Add("@ReBadDebt", invoiceRequest.Invoice.ReBadDebt);
+            //    parameters.Add("@DateReBadDebt", invoiceRequest.Invoice.DateReBadDebt);
+            //    parameters.Add("@Printing", invoiceRequest.Invoice.Printing);
+            //    parameters.Add("@PrintedOn", invoiceRequest.Invoice.PrintedOn);
+            //    parameters.Add("@Deleted", invoiceRequest.Invoice.Deleted);
+            //    parameters.Add("@DeletedOn", invoiceRequest.Invoice.DeletedOn);
+            //    parameters.Add("@InvoiceNo2", invoiceRequest.Invoice.InvoiceNo2);
+            //    parameters.Add("@InvHeader", invoiceRequest.Invoice.InvHeader);
+            //    parameters.Add("@ExRateId", invoiceRequest.Invoice.ExRateId);
+            //    parameters.Add("@RePrintApproved", invoiceRequest.Invoice.RePrintApproved);
+            //    parameters.Add("@RePrintApprovedOn", invoiceRequest.Invoice.RePrintApprovedOn);
+            //    parameters.Add("@RePrintApprovedBy", invoiceRequest.Invoice.RePrintApprovedBy);
+            //    parameters.Add("@DeletedRemarks", invoiceRequest.Invoice.DeletedRemarks);
+            //    parameters.Add("@IdLama", invoiceRequest.Invoice.IdLama);
+            //    parameters.Add("@IsCostToCost", invoiceRequest.Invoice.IsCostToCost);
+            //    parameters.Add("@SFPNoFormat", invoiceRequest.Invoice.SFPNoFormat);
+            //    parameters.Add("@SFPDetailId", invoiceRequest.Invoice.SFPDetailId);
+            //    parameters.Add("@UniqueKeySFP", invoiceRequest.Invoice.UniqueKeySFP);
+            //    parameters.Add("@UniqueKeyInvoice", invoiceRequest.Invoice.UniqueKeyInvoice);
+            //    parameters.Add("@DeleteType", invoiceRequest.Invoice.DeleteType);
+            //    parameters.Add("@DeleteTypeRefInvId", invoiceRequest.Invoice.DeleteTypeRefInvId);
+            //    parameters.Add("@KursKMK", invoiceRequest.Invoice.KursKMK);
+            //    parameters.Add("@KursKMKId", invoiceRequest.Invoice.KursKMKId);
+            //    parameters.Add("@IsDelivered", invoiceRequest.Invoice.IsDelivered);
+            //    parameters.Add("@DeliveredOn", invoiceRequest.Invoice.DeliveredOn);
+            //    parameters.Add("@DeliveredRemarks", invoiceRequest.Invoice.DeliveredRemarks);
+            //    parameters.Add("@SFPReference", invoiceRequest.Invoice.SFPReference);
+            //    parameters.Add("@ApprovedCredit", invoiceRequest.Invoice.ApprovedCredit);
+            //    parameters.Add("@ApprovedCreditBy", invoiceRequest.Invoice.ApprovedCreditBy);
+            //    parameters.Add("@ApprovedCreditOn", invoiceRequest.Invoice.ApprovedCreditOn);
+            //    parameters.Add("@ApprovedCreditRemarks", invoiceRequest.Invoice.ApprovedCreditRemarks);
+            //    parameters.Add("@PackingListNo", invoiceRequest.Invoice.PackingListNo);
+            //    parameters.Add("@SICustomerNo", invoiceRequest.Invoice.SICustomerNo);
+            //    parameters.Add("@Reference", invoiceRequest.Invoice.Reference);
+            //    parameters.Add("@IsStampDuty", invoiceRequest.Invoice.IsStampDuty);
+            //    parameters.Add("@StampDutyAmount", invoiceRequest.Invoice.StampDutyAmount);
+            //    parameters.Add("@PEJKPNumber", invoiceRequest.Invoice.PEJKPNumber);
+            //    parameters.Add("@PEJKPReference", invoiceRequest.Invoice.PEJKPReference);
+            //    parameters.Add("@ModifiedBy", invoiceRequest.Invoice.User);
+
+            //    using (var connection = new SqlConnection(connectionString))
+            //    {
+
+            //        PaymentRequest Header
+
+
+            //        var affectedRows = await connection.ExecuteAsync("operation.SP_Invoice_Update", parameters, commandType: CommandType.StoredProcedure);
+
+
+
+            //        PaymentRequestDetail
+
+
+            //        for (int i = 0; i < invoiceRequest.InvoiceDetails.Count; i++)
+            //        {
+            //            var parameterDetails = new DynamicParameters();
+
+            //            parameterDetails.Add("@RowStatus", invoiceRequest.InvoiceDetails[i].RowStatus == "" ? "ACT" : invoiceRequest.InvoiceDetails[i].RowStatus);
+            //            parameterDetails.Add("@CountryId", invoiceRequest.Invoice.CountryId);
+            //            parameterDetails.Add("@CompanyId", invoiceRequest.Invoice.CompanyId);
+            //            parameterDetails.Add("@BranchId", invoiceRequest.Invoice.BranchId);
+            //            parameterDetails.Add("@InvoiceId", invoiceRequest.Invoice.Id);
+            //            parameterDetails.Add("@Sequence", i + 1);
+            //            parameterDetails.Add("@DebetCredit", invoiceRequest.InvoiceDetails[i].DebetCredit);
+            //            parameterDetails.Add("@AccountId", invoiceRequest.InvoiceDetails[i].AccountId);
+            //            parameterDetails.Add("@Description", invoiceRequest.InvoiceDetails[i].Description);
+            //            parameterDetails.Add("@Type", invoiceRequest.InvoiceDetails[i].Type);
+            //            parameterDetails.Add("@CodingQuantity", invoiceRequest.InvoiceDetails[i].CodingQuantity);
+            //            parameterDetails.Add("@Quantity", invoiceRequest.InvoiceDetails[i].Quantity);
+            //            parameterDetails.Add("@PerQty", invoiceRequest.InvoiceDetails[i].PerQty);
+            //            parameterDetails.Add("@Sign", invoiceRequest.InvoiceDetails[i].Sign);
+            //            parameterDetails.Add("@AmountCrr", invoiceRequest.InvoiceDetails[i].AmountCrr);
+            //            parameterDetails.Add("@Amount", invoiceRequest.InvoiceDetails[i].Amount);
+            //            parameterDetails.Add("@PercentVat", invoiceRequest.InvoiceDetails[i].PercentVat);
+            //            parameterDetails.Add("@AmountVat", invoiceRequest.InvoiceDetails[i].AmountVat);
+            //            parameterDetails.Add("@EPLDetailId", invoiceRequest.InvoiceDetails[i].EPLDetailId);
+            //            parameterDetails.Add("@VatId", invoiceRequest.InvoiceDetails[i].VatId);
+            //            parameterDetails.Add("@IdLama", invoiceRequest.InvoiceDetails[i].IdLama);
+            //            parameterDetails.Add("@IsCostToCost", invoiceRequest.InvoiceDetails[i].IsCostToCost);
+            //            parameterDetails.Add("@OriginalUsd", invoiceRequest.InvoiceDetails[i].OriginalUsd);
+            //            parameterDetails.Add("@OriginalRate", invoiceRequest.InvoiceDetails[i].OriginalRate);
+            //            parameterDetails.Add("@ModifiedBy", invoiceRequest.InvoiceDetails[i].User);
+
+            //            var affectedDetailRows = await connection.ExecuteAsync("operation.SP_InvoiceDetail_Update", parameterDetails, commandType: CommandType.StoredProcedure);
+            //        }
+
+
+            //        transaction.Commit();
+            //    }
+
+            //    responsePage.Code = 200;
+            //    responsePage.Message = "Data Updated";
+
+            //    return responsePage;
+            //}
+            //}
+            //catch (Exception ex)
+            //{
+            //    responsePage.Code = 500;
+            //    responsePage.Error = ex.Message;
+            //    responsePage.Message = "Faile to update";
+
+            //    return responsePage;
+            //}
+            #endregion
         }
 
         public async Task<ResponsePage<InvoiceResponse>> Delete(RequestId requestId)
