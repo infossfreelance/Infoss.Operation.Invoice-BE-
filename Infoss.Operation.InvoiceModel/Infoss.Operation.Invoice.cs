@@ -11,7 +11,7 @@
         public int InvoiceNo { get; set; } = 0;
         public string DebetCredit { get; set; } = string.Empty;
         public int ShipmentId { get; set; } = 0;
-        public string ShipmentNo { get; set; } = 0;
+        public string ShipmentNo { get; set; } = string.Empty;
         public int CustomerTypeId { get; set; } = 0;
         public int CustomerId { get; set; } = 0;
         public string CustomerName { get; set; } = string.Empty;
