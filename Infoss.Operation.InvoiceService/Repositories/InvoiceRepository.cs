@@ -17,6 +17,60 @@ namespace Infoss.Operation.InvoiceService.Repositories
             invoiceDetailRepo = new InvoiceDetailRepository(new SqlConnection(connectionString));
         }
 
+        public async Task<ResponsePage<ResponseNoInvoice>> GetNoInvoice(RequestPage requestPage)
+        { 
+            var responsePage = new ResponsePage<ResponseNoInvoice>();
+            try
+            {
+                var parameters = new DynamicParameters();
+
+                parameters.Add("@RowStatus", requestPage.RowStatus);
+                parameters.Add("@CountryId", requestPage.UserLogin.CountryId);
+                parameters.Add("@CompanyId", requestPage.UserLogin.CompanyId);
+                parameters.Add("@BranchId", requestPage.UserLogin.BranchId);
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    using (var multi = (await connection.QueryMultipleAsync("operation.SP_Invoice_Auto_Running_Number", parameters, commandType: CommandType.StoredProcedure)))
+                    {
+                        ResponseNoInvoice invoiceResponsePage = new ResponseNoInvoice();
+
+                        //var invoiceColumns = (await multi.ReadAsync<InvoiceColumn>()).ToList();
+                        var invoiceResponses = (await multi.ReadAsync<ResponseNoInvoice>()).ToList();
+
+                        //invoiceResponsePage.Columns = invoiceColumns;
+                        invoiceResponsePage.InvoiceNo = invoiceResponses[0].InvoiceNo;
+                        invoiceResponsePage.InvoiceNo2 = invoiceResponses[0].InvoiceNo2;
+
+                        responsePage.Data = invoiceResponsePage;
+
+
+                        if (responsePage.Data != null)
+                        {
+                            responsePage.Code = 200;
+                            responsePage.Message = "Successfully read";
+                        }
+                        else
+                        {
+                            responsePage.Code = 204;
+                            responsePage.Message = "No content";
+                        }
+
+                        return responsePage;
+                    }
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+                responsePage.Code = 500;
+                responsePage.Error = ex.Message;
+                responsePage.Message = "Failed to read";
+
+                return responsePage;
+            }
+        }
         public async Task<ResponsePage<InvoiceResponsePage>> ReadAll(RequestPage requestPage)
         {
             var responsePage = new ResponsePage<InvoiceResponsePage>();

@@ -22,6 +22,21 @@ namespace Infoss.Operation.InvoiceService.Controllers
             invoiceRepository = new InvoiceRepository(Configuration);
         }
 
+        [Route("PostAutoNoInvoice")]
+        [HttpPost]
+        public async Task<ResponsePage<ResponseNoInvoice>> GetNoInvoice([FromBody] UserLogin userLogin)
+        {
+            var route = Request.Path.Value;
+
+            var requestPage = new RequestPage();
+            requestPage.RowStatus = "ACT";
+            requestPage.UserLogin = userLogin;
+
+            var responsePage = await invoiceRepository.GetNoInvoice(requestPage);
+            return responsePage;
+
+        }
+
         [Route("PostByPageAll")]
         [HttpPost]
         public async Task<ResponsePage<InvoiceResponsePage>> GetPost(int pageNumber, int pageSize, [FromBody] UserLogin userLogin)

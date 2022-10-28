@@ -4,6 +4,7 @@ namespace Infoss.Operation.InvoiceService.Repositories
 {
     public interface IInvoiceRepository
     {
+        public Task<ResponsePage<ResponseNoInvoice>> GetNoInvoice(RequestPage requestPage);
         public Task<ResponsePage<InvoiceResponsePage>> ReadAll(RequestPage requestPage);
         public Task<ResponsePage<InvoiceResponse>> UpdateStatusPrint(InvoicePrintingRequest invoicePrintingRequest);
         public Task<ResponsePage<InvoiceResponse>> UpdateStatusRePrint(InvoiceRePrintingRequest invoicePrintingRequest);
